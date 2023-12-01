@@ -7,28 +7,32 @@ use App\Models\CallTrade;
 use App\Models\Customer;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use Log;
 
 class CustomerController extends Controller
 {
-
     public function customers(Request $request)
     {
-        $search = $request->input('search');
-        $customer = Customer::when($search, function ($query) use ($search) {
-            $query->where('title', 'like', '%' . $search . '%')
-                ->orWhere('first_name', 'like', '%' . $search . '%')
-                ->orWhere('last_name', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%')
-                ->orWhere('phone', 'like', '%' . $search . '%')
-                ->orWhere('city', 'like', '%' . $search . '%')
-                ->orWhere('status', 'like', $search . '%');
-        })->paginate(10);
+        $searchTerm = $request->input('search');
+        $customer = Customer::when($searchTerm, function ($query) use ($searchTerm) {
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('title', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('first_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
+            })
+                ->orWhere('email', 'like', '%' . $searchTerm . '%')
+                ->orWhere('phone', 'like', '%' . $searchTerm . '%')
+                ->orWhere('city', 'like', '%' . $searchTerm . '%')
+                ->orWhere('status', 'like', '%' . $searchTerm . '%');
+        });
+        // dd($customer->toSql());
+        $customer = $customer->paginate(10);
 
         return view('admin.customer.all', compact('customer'));
     }
-
 
     public function create()
     {
@@ -64,12 +68,66 @@ class CustomerController extends Controller
     }
 
 
-    public function view(Customer $customer)
+
+    public function view(Request $request, Customer $customer)
     {
         $cus_id = $customer->id;
-        $callTrades = CallTrade::whereJsonContains('customer_ids', (string)$cus_id)->paginate(10);
-        return view('admin.customer.view', compact('customer', 'callTrades'));
+        $query = CallTrade::whereJsonContains('customer_ids', (string)$cus_id);
+        // Apply date range filter
+        if ($request->has('from_date') && $request->has('to_date')) {
+            $from_date = $this->validateAndParseDate($request->input('from_date'));
+            $to_date = $this->validateAndParseDate($request->input('to_date'));
+
+            if ($from_date && $to_date) {
+                $query->whereBetween('created_at', [$from_date->startOfDay(), $to_date->endOfDay()]);
+            }
+        }
+
+        // Apply search
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($query) use ($search) {
+                $query->where('trade_name', 'like', '%' . $search . '%')
+                    ->orWhere('amount', 'like', '%' . $search . '%')
+                    ->orWhere('commission', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', $search . '%');
+
+                $dateSearch = $this->validateAndParseDate($search);
+                if ($dateSearch) {
+                    $query->orWhereDate('created_at', '=', $dateSearch);
+                }
+            });
+        }
+
+        // Apply weekly or monthly filter
+        $filter = $request->input('commition_filter');
+        if ($filter == 'weekly') {
+            $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        } elseif ($filter == 'monthly') {
+            $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+        }
+
+        $callTrades = $query->paginate(10);
+
+        // Calculate total amount and total commission
+        $totalAmount = $query->sum('amount');
+        $totalCommission = $query->sum('commission');
+
+        return view('admin.customer.view', compact('customer', 'callTrades', 'totalAmount', 'totalCommission'));
     }
+
+
+    private function validateAndParseDate($dateString)
+    {
+        try {
+            $parsedDate = Carbon::parse($dateString);
+            return $parsedDate->isValid() ? $parsedDate : null;
+        } catch (\Exception $e) {
+            // dd("Catch any parsing exception and return null");
+            return null;
+        }
+    }
+
 
     public function edit(Customer $customer)
     {
@@ -82,7 +140,7 @@ class CustomerController extends Controller
             'title' => 'required',
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
-            'email' => 'required|max:255|unique:customers,email,except' . $customer->id,
+            'email' => 'required|max:255|unique:customers,email,' . $customer->id,
             'phone' => 'required|max:255',
             'address' => 'required|max:255',
             'city' => 'required|max:255',
@@ -126,8 +184,6 @@ class CustomerController extends Controller
         return redirect()->back()->with('status', 'Status change successfull .!');
     }
 
-
-
     public function activeCustomers(Request $request)
     {
         $search = $request->input('search');
@@ -146,4 +202,58 @@ class CustomerController extends Controller
 
         return view('admin.customer.active_customer', compact('activeCustomers'));
     }
+
+
+    public function statistics(Request $request, Customer $customer)
+    {
+        $query = CallTrade::query();
+
+        // echo "<pre>";
+        // print_r($request->all());
+        // die();
+
+        // Apply date range filter
+        if (!empty($request->from_date) &&!empty($request->to_date)) {
+            $from_date = $this->validateAndParseDate($request->input('from_date'));
+            $to_date = $this->validateAndParseDate($request->input('to_date'));
+
+            if ($from_date && $to_date) {
+                $query->whereBetween('created_at', [$from_date->startOfDay(), $to_date->endOfDay()]);
+            }
+        }
+
+        // Apply search
+        if (!empty($request->search)) {
+            $search = $request->input('search');
+            $query->where(function ($query) use ($search) {
+                $query->where('trade_name', 'like', '%' . $search . '%')
+                    ->orWhere('amount', 'like', '%' . $search . '%')
+                    ->orWhere('commission', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', $search . '%');
+
+                $dateSearch = $this->validateAndParseDate($search);
+                if ($dateSearch) {
+                    $query->orWhereDate('created_at', '=', $dateSearch);
+                }
+            });
+        }
+
+        // Apply weekly or monthly filter
+        $filter = $request->input('commition_filter');
+        if ($filter == 'weekly') {
+            $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        } elseif ($filter == 'monthly') {
+            $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
+        }
+
+        // Calculate total amount and total commission
+        $totalAmount = $query->sum('amount');
+        $totalCommission = $query->sum('commission');
+
+        $callTrades = $query->paginate(10);
+
+        return view('admin.customer.statistics', compact('customer', 'callTrades', 'totalAmount', 'totalCommission'));
+    }
+
+
 }

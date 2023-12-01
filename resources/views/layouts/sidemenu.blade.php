@@ -33,11 +33,32 @@
                         <span>Customer</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="{{route('customers')}}">View All</a></li>
-                        <li><a href="{{route('customer.create')}}">Add Customer</a></li>
-                        <li><a href="{{route('customer.activeCustomers')}}">Active Customer</a></li>
-                        <li><a href="{{route('callTrades')}}">Call Trade</a></li>
+                        <li><a href="{{ route('customers') }}">View All</a></li>
+                        <li><a href="{{ route('customer.create') }}">Add Customer</a></li>
                     </ul>
+                </li>
+
+                <li class="menu-title">Statistics</li>
+                <li>
+                    <a href="{{ route('customer.statistics') }}" class="waves-effect">
+                        <i class="ri-account-circle-line"></i>
+                        <span>Statistics</span>
+                    </a>
+                </li>
+
+
+                <li class="menu-title">Call Trade</li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="ri-account-circle-line"></i>
+                        <span>Trades</span>
+                    </a>
+
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{{ route('customer.activeCustomers') }}">Call Trade</a></li>
+                        <li><a href="{{ route('callTrades') }}">Trades History</a></li>
+                    </ul>
+
                 </li>
 
 

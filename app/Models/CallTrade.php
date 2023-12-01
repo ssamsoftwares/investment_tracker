@@ -9,6 +9,6 @@ class CallTrade extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'trade_name','amount','customer_ids'
+        'trade_name','amount','customer_ids','commission','status'
     ];
 }

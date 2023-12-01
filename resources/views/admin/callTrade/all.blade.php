@@ -35,6 +35,8 @@
                                     <tr>
                                         <th>{{ 'Trade Name' }}</th>
                                         <th>{{ 'Amount' }}</th>
+                                        <th>{{ 'Commition' }}</th>
+                                        <th>{{ 'Status' }}</th>
                                         <th>{{ 'Actions' }}</th>
 
                                     </tr>
@@ -46,6 +48,16 @@
 
                                             <td>{{ $trade->trade_name }} </td>
                                             <td>{{ $trade->amount }}</td>
+                                            <td>{{ $trade->commission }}</td>
+
+                                            <td>
+                                                @if ($trade->status == 'unpaid')
+                                                <span  class="btn btn-danger btn-sm">Unpaid</span>
+                                                @else
+                                                    <a href="#" class="btn btn-primary btn-sm">Paid</a>
+                                                @endif
+
+                                            </td>
 
                                             <td>
                                                 <div class="action-btns " role="group">
@@ -54,10 +66,14 @@
                                                         <i class="ri-eye-line"></i>
                                                     </a>
 
-                                                    <a href="{{ route('callTrades.delete', ['callTrade' => $trade->id]) }}"
+                                                    <a href="{{ route('callTrades.edit', ['callTrade' => $trade->id]) }}"
+                                                        class="btn btn-info waves-effect waves-light edit">
+                                                        <i class="ri-pencil-line"></i>
+                                                    </a>
+                                                    {{-- <a href="{{ route('callTrades.delete', ['callTrade' => $trade->id]) }}"
                                                         class="btn btn-danger waves-effect waves-light del" onclick="return confirm('Are you sure delete this recode.!')">
                                                         <i class="ri-delete-bin-line"></i>
-                                                    </a>
+                                                    </a> --}}
                                                 </div>
                                             </td>
                                         </tr>

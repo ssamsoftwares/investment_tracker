@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('trade_name',255);
             $table->float('amount');
             $table->text('customer_ids');
+            $table->float('commission');
+            $table->enum('status',['paid','unpaid'])->default('unpaid');
             $table->timestamps();
         });
     }

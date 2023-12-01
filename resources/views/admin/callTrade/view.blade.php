@@ -14,7 +14,7 @@
 
     {{-- Call Trade customers details --}}
     <div class="row mt-2">
-        <div class="col-lg-6">
+        <div class="col-lg-8">
             <div class="card">
                 <h5 class="card-header">Call Trade Details</h5>
                 <div class="card-body">
@@ -26,10 +26,26 @@
 
                     <h5 class="card-title">
                         <span>{{ 'Amount' }} : </span>
-                        <span>{{ Str::ucfirst($callTrade->amount) }}</span>
+                        <span>{{ $callTrade->amount }}</span>
                     </h5>
                     <hr>
 
+                    <h5 class="card-title">
+                        <span>{{ 'Commission' }} : </span>
+                        <span>{{ $callTrade->commission }}</span>
+                    </h5>
+                    <hr>
+
+                    <h5 class="card-title">
+                        <span>{{ 'Status' }} : </span>
+                        @if ($callTrade->status == 'unpaid')
+                            <span class="btn btn-danger btn-sm">Unpaid</span>
+                        @else
+                        <span class="btn btn-primary btn-sm">Paid</span>
+                        @endif
+
+                    </h5>
+                    <hr>
 
                     <h5 class="card-title">
                         <span>{{ 'Created at' }} :</span>

@@ -3,14 +3,9 @@
 use App\Http\Controllers\Admin\CallTradeController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\StudentAuthController;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\UserController;
-use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +58,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customers', [CustomerController::class, 'customers'])->name('customers');
     Route::get('customers-view/{customer?}', [CustomerController::class, 'view'])->name('customer.view');
 
+    Route::get('customers-statistics/{customer?}', [CustomerController::class, 'statistics'])->name('customer.statistics');
+
+
     Route::get('customers-add', [CustomerController::class, 'create'])->name('customer.create');
     Route::post('customers-add', [CustomerController::class, 'store'])->name('customer.store');
 
@@ -75,16 +73,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('active-customers', [CustomerController::class, 'activeCustomers'])->name('customer.activeCustomers');
 
+    Route::get('/get-total-commition', [CustomerController::class, 'getTotalCommition'])->name('customer.getTotalCommition');
+
+    Route::get('/get-total-commition-date-range', [CustomerController::class, 'getTotalCommitionDateRange'])->name('customer.getTotalCommitionDateRange');
+
     //CALL TRADE
     Route::get('/callTrade', [CallTradeController::class,'callTrade'])->name('callTrades');
     Route::get('/callTrade-view/{id?}', [CallTradeController::class,'view'])->name('callTrade.view');
 
-    // Route::get('/callTrades-create', [CallTradeController::class,'create'])->name('callTrade.create');
     Route::post('/callTrade-create', [CallTradeController::class,'createTradeNextBtn'])->name('callTrades.nextBtn');
-
     Route::post('callTrade-store',[CallTradeController::class,'storeTrade'])->name('callTrades.storeTrade');
 
+    Route::get('callTrade-edit/{callTrade?}',[CallTradeController::class,'edit'])->name('callTrades.edit');
+    Route::post('callTrade-update/{callTrade?}',[CallTradeController::class,'update'])->name('callTrades.update');
+
     Route::get('callTrade-delete/{callTrade?}', [CallTradeController::class, 'destroy'])->name('callTrades.delete');
+
+    Route::get('callTrade-status/{status?}', [CallTradeController::class, 'updateStatus'])->name('callTrades.updateStatus');
 
 });
 

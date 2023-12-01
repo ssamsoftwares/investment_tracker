@@ -71,10 +71,10 @@
                                                     <i class="ri-pencil-line"></i>
                                                 </a>
 
-                                                <a href="{{ route('customer.delete', ['customer' => $c->id]) }}"
+                                                {{-- <a href="{{ route('customer.delete', ['customer' => $c->id]) }}"
                                                     class="btn btn-danger waves-effect waves-light del" onclick="return confirm('Are you sure delete this recode.!')">
                                                     <i class="ri-delete-bin-line"></i>
-                                                </a>
+                                                </a> --}}
 
                                             </div>
                                         </td>
