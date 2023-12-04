@@ -18,8 +18,6 @@
             <div class="card">
                 <div class="card-body">
 
-
-
                     <form action="{{ route('customer.statistics') }}" method="get">
                         <div class="row">
                             <div class="col-3">
@@ -59,66 +57,6 @@
                                 </div>
                         </div>
                     </form>
-
-
-
-
-
-{{--
-                    <div class="row container mt-4 mb-4" style="display:flex; justify-content: space-between;">
-                        <div class="col-lg-5 mx-1">
-                            <x-form.select label="Current Weekly & Monthly Filter" chooseFileComment="All"
-                                name="commition_filter" id="commition_filter" :options="[
-                                    'weekly' => 'Weekly',
-                                    'monthly' => 'Monthly',
-                                ]" :selected="request('commition_filter')" />
-                        </div>
-                    </div>
-
-                    <div class="row container mt-4 mb-4" style="display:flex; justify-content: space-between;">
-                        <form action="{{ route('customer.statistics', ['customer' => $customer]) }}" method="get">
-                            @csrf
-                            <div class="row">
-                                <strong class="m-2 text-primary">Select Date Filter Commitions</strong>
-                                <input type="hidden" id="cust_id" value="{{ $customer->id }}">
-                                <div class="col-lg-4 mx-1">
-                                    <x-form.input name="from_date" label="From" type="date"
-                                        value="{{ request('from_date') }}" />
-                                </div>
-
-                                <div class="col-lg-4 mx-1">
-                                    <x-form.input name="to_date" label="To" type="date"
-                                        value="{{ request('to_date') }}" />
-                                </div>
-
-                                <div class="col-lg-2 mx-1">
-                                    <input type="submit" class="btn btn-info mt-lg-4" value="Filter">
-                                </div>
-                            </div>
-                        </form>
-
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <x-form.input name="total_amount" label="Total Amount" value="{{ $totalAmount }}"
-                                    readonly />
-                            </div>
-
-                            <div class="col-lg-4">
-                                <x-form.input name="total_commission" label="Total Commissions"
-                                    value="{{ $totalCommission }}" readonly />
-                            </div>
-
-                            <div class="col-lg-5 mt-1 mr-3" style="justify-content: end">
-                                <x-search.table-search action="{{ route('customer.statistics', ['customer' => $customer]) }}"
-                                    method="get" name="search"
-                                    value="{{ isset($_REQUEST['search']) ? $_REQUEST['search'] : '' }}"
-                                    btnClass="search_btn" catVal="{{ request('commition_filter') }}"
-                                    roleName="commition_filter" />
-                            </div>
-                        </div>
-                    </div> --}}
-
-
                     <hr>
 
                     <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap"
@@ -170,7 +108,7 @@
         </div> <!-- end col -->
     </div>
 
-    {{-- {{ $candidates->appends(['candidate_role' => request('candidate_role'), 'search' => request('search')])->links() }} --}}
+    {{-- {{ $callTrades->appends(['search' => request('search'), 'search' => request('search')])->links() }} --}}
 
 @endsection
 

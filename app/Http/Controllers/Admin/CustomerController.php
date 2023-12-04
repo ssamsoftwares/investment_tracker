@@ -14,25 +14,30 @@ use Log;
 
 class CustomerController extends Controller
 {
+
+
     public function customers(Request $request)
     {
         $searchTerm = $request->input('search');
-        $customer = Customer::when($searchTerm, function ($query) use ($searchTerm) {
-            $query->where(function ($query) use ($searchTerm) {
-                $query->where('title', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('first_name', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
-            })
-                ->orWhere('email', 'like', '%' . $searchTerm . '%')
-                ->orWhere('phone', 'like', '%' . $searchTerm . '%')
-                ->orWhere('city', 'like', '%' . $searchTerm . '%')
-                ->orWhere('status', 'like', '%' . $searchTerm . '%');
+        $searchTerms = explode(' ', $searchTerm);
+
+        $customer = Customer::where(function ($query) use ($searchTerms) {
+            foreach ($searchTerms as $term) {
+                $query->where('title', 'like', '%' . $term . '%')
+                    ->orWhere('first_name', 'like', '%' . $term . '%')
+                    ->orWhere('last_name', 'like', '%' . $term . '%')
+                    ->orWhere('email', 'like', '%' . $term . '%')
+                    ->orWhere('phone', 'like', '%' . $term . '%')
+                    ->orWhere('city', 'like', '%' . $term . '%')
+                    ->orWhere('status', 'like', '%' . $term . '%');
+            }
         });
-        // dd($customer->toSql());
+
         $customer = $customer->paginate(10);
 
         return view('admin.customer.all', compact('customer'));
     }
+
 
     public function create()
     {
@@ -207,13 +212,8 @@ class CustomerController extends Controller
     public function statistics(Request $request, Customer $customer)
     {
         $query = CallTrade::query();
-
-        // echo "<pre>";
-        // print_r($request->all());
-        // die();
-
         // Apply date range filter
-        if (!empty($request->from_date) &&!empty($request->to_date)) {
+        if (!empty($request->from_date) && !empty($request->to_date)) {
             $from_date = $this->validateAndParseDate($request->input('from_date'));
             $to_date = $this->validateAndParseDate($request->input('to_date'));
 
@@ -254,6 +254,4 @@ class CustomerController extends Controller
 
         return view('admin.customer.statistics', compact('customer', 'callTrades', 'totalAmount', 'totalCommission'));
     }
-
-
 }
